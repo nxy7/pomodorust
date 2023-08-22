@@ -1,3 +1,5 @@
+This is a fork of https://github.com/ColorCookie-dev/porsmo that adds nix packaging and more importantly changes name to fix great missed opportunity that is 'pomodorust'.
+
 # Porsmo
 A rust program for pomodoro, timer, stopwatch - all in one.
 
