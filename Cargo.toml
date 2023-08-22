@@ -1,5 +1,5 @@
 [package]
-name = "porsmo"
+name = "pomodorust"
 version = "0.2.2"
 edition = "2021"
 readme = "README.md"
