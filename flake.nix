@@ -38,7 +38,7 @@
             nativeBuildInputs = with pkgs; [ pkg-config ];
             buildInputs = with pkgs; [ alsa-lib ];
 
-            cargoSha256 = "/crpLUk6Q88lGLQOGSK61NQC32ekxcORiEBxgoFhzX8=";
+            cargoSha256 = "0i6TQnVAnL6buO6UN6AXb+ORTD0xuTHsj8BtA8VVvQM=";
 
             meta = with pkgs.lib; {
               description = "Pomodoro app";
