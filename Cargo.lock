@@ -1130,7 +1130,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "porsmo"
+name = "pomodorust"
 version = "0.2.2"
 dependencies = [
  "clap",

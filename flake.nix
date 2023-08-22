@@ -26,7 +26,7 @@
             config.allowUnfree = true;
           };
           porsmoPkg = pkgs.rustPlatform.buildRustPackage rec {
-            pname = "porsmo";
+            pname = "pomodorust";
             version = "0.2.2";
 
             cargo = pkgs.rust-bin.beta.latest.minimal;

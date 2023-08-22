@@ -2,9 +2,9 @@ use crate::terminal::running_color;
 use crate::{
     format::fmt_time,
     input::Command,
-    terminal::{TerminalHandler, TerminalError},
+    terminal::{TerminalError, TerminalHandler},
 };
-use porsmo::counter::Counter as Stopwatch;
+use pomodorust::counter::Counter as Stopwatch;
 use std::time::Duration;
 
 pub struct StopwatchUI {
@@ -14,11 +14,18 @@ pub struct StopwatchUI {
 
 impl StopwatchUI {
     pub fn new(time: Duration) -> Self {
-        Self { counter: Stopwatch::new(None, time).start(), quit: false }
+        Self {
+            counter: Stopwatch::new(None, time).start(),
+            quit: false,
+        }
     }
 
     pub fn quit(self) -> Self {
-        Self { counter: self.counter.stop(), quit: true, ..self }
+        Self {
+            counter: self.counter.stop(),
+            quit: true,
+            ..self
+        }
     }
 
     pub fn ended(&self) -> bool {

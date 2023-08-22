@@ -1,17 +1,9 @@
 use crate::alert::Alert;
 use crate::terminal::{running_color, TerminalError};
-use crate::{
-    format::fmt_time,
-    input::Command,
-    terminal::TerminalHandler,
-};
+use crate::{format::fmt_time, input::Command, terminal::TerminalHandler};
 use crossterm::style::Color;
-use porsmo::counter::{DoubleEndedDuration, Counter};
-use porsmo::pomodoro::{
-    PomodoroMode as Mode,
-    PomoConfig,
-    PomodoroSession as Session,
-};
+use pomodorust::counter::{Counter, DoubleEndedDuration};
+use pomodorust::pomodoro::{PomoConfig, PomodoroMode as Mode, PomodoroSession as Session};
 
 use std::time::Duration;
 
@@ -36,8 +28,7 @@ impl PomodoroUI {
         }
     }
 
-    pub fn from_secs(work_time: u64, break_time: u64, long_break: u64)
-    -> Self {
+    pub fn from_secs(work_time: u64, break_time: u64, long_break: u64) -> Self {
         Self::new(PomoConfig {
             work_time: Duration::from_secs(work_time),
             break_time: Duration::from_secs(break_time),
@@ -51,17 +42,20 @@ impl PomodoroUI {
 
     pub fn time_left(&self) -> Duration {
         self.counter
-            .saturating_time_left(self.session
-                                      .mode()
-                                      .initial(self.config))
+            .saturating_time_left(self.session.mode().initial(self.config))
     }
 
     pub fn excess_time_left(&self) -> DoubleEndedDuration {
-        self.counter.checked_time_left(self.session.mode().initial(self.config))
+        self.counter
+            .checked_time_left(self.session.mode().initial(self.config))
     }
 
     pub fn quit(self) -> Self {
-        Self { counter: self.counter.stop(), quit: true, ..self }
+        Self {
+            counter: self.counter.stop(),
+            quit: true,
+            ..self
+        }
     }
 
     pub fn next_mode(self) -> Self {
@@ -81,35 +75,31 @@ impl PomodoroUI {
         "[Q]: quit, [Shift S]: Skip, [Space]: pause/resume, [Enter]: Next";
     const SKIP_CONTROLS: &str = "[Enter]: Yes, [Q/N]: No";
 
-    pub fn show(&self, terminal: &mut TerminalHandler)
-    -> Result<(), TerminalError> {
+    pub fn show(&self, terminal: &mut TerminalHandler) -> Result<(), TerminalError> {
         if self.skip {
             terminal.clear()?;
             let message = format!("Round: {}", self.session.session());
             match self.check_next_mode() {
-                Mode::Work =>
-                    terminal
-                        .set_foreground_color(Color::Red)?
-                        .print("skip to work?")?
-                        .info(message)?
-                        .info(Self::SKIP_CONTROLS)?
-                        .flush()?,
-                Mode::Break =>
-                    terminal
-                        .set_foreground_color(Color::Green)?
-                        .print("skip to break?")?
-                        .info(message)?
-                        .info(Self::SKIP_CONTROLS)?
-                        .flush()?,
-                Mode::LongBreak =>
-                    terminal
-                        .set_foreground_color(Color::Green)?
-                        .print("skip to long break?")?
-                        .info(message)?
-                        .info(Self::SKIP_CONTROLS)?
-                        .flush()?,
+                Mode::Work => terminal
+                    .set_foreground_color(Color::Red)?
+                    .print("skip to work?")?
+                    .info(message)?
+                    .info(Self::SKIP_CONTROLS)?
+                    .flush()?,
+                Mode::Break => terminal
+                    .set_foreground_color(Color::Green)?
+                    .print("skip to break?")?
+                    .info(message)?
+                    .info(Self::SKIP_CONTROLS)?
+                    .flush()?,
+                Mode::LongBreak => terminal
+                    .set_foreground_color(Color::Green)?
+                    .print("skip to long break?")?
+                    .info(message)?
+                    .info(Self::SKIP_CONTROLS)?
+                    .flush()?,
             };
-            return Ok(())
+            return Ok(());
         }
 
         match self.excess_time_left() {
@@ -132,9 +122,7 @@ impl PomodoroUI {
                     .flush()?;
             }
             DoubleEndedDuration::Negative(elapsed) => {
-                let (title, message) = Self::pomodoro_alert_message(
-                    self.check_next_mode()
-                );
+                let (title, message) = Self::pomodoro_alert_message(self.check_next_mode());
                 self.alert.alert(title, message);
 
                 let title = match self.check_next_mode() {
@@ -157,38 +145,37 @@ impl PomodoroUI {
     }
 
     pub fn start_skip(self) -> Self {
-        Self { counter: self.counter.stop(), skip: true, ..self }
+        Self {
+            counter: self.counter.stop(),
+            skip: true,
+            ..self
+        }
     }
 
     pub fn cancel_skip(self) -> Self {
-        Self { skip: false, ..self }
+        Self {
+            skip: false,
+            ..self
+        }
     }
 
     pub fn handle_command(mut self, command: Command) -> Self {
         match command {
-            Command::Quit | Command::No if self.skip =>
-                return self.cancel_skip(),
+            Command::Quit | Command::No if self.skip => return self.cancel_skip(),
 
-            Command::Enter | Command::Yes if self.skip =>
-                return self.cancel_skip().next_mode(),
+            Command::Enter | Command::Yes if self.skip => return self.cancel_skip().next_mode(),
 
-            Command::Enter if self.time_left().is_zero() =>
-                return self.next_mode(),
+            Command::Enter if self.time_left().is_zero() => return self.next_mode(),
 
-            Command::Quit =>
-                return self.quit(),
+            Command::Quit => return self.quit(),
 
-            Command::Pause =>
-                self.counter = self.counter.stop(),
+            Command::Pause => self.counter = self.counter.stop(),
 
-            Command::Resume =>
-                self.counter = self.counter.start(),
+            Command::Resume => self.counter = self.counter.start(),
 
-            Command::Toggle =>
-                self.counter = self.counter.toggle(),
+            Command::Toggle => self.counter = self.counter.toggle(),
 
-            Command::Skip =>
-                return self.start_skip(),
+            Command::Skip => return self.start_skip(),
 
             _ => (),
         };
@@ -205,5 +192,3 @@ impl PomodoroUI {
         (heading.into(), message.into())
     }
 }
-
-

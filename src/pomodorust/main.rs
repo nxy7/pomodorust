@@ -1,24 +1,24 @@
 mod alert;
+mod app;
 mod format;
 mod input;
 mod pomodoro;
 mod stopwatch;
 mod terminal;
 mod timer;
-mod app;
 
-use std::time::Duration;
-use app::PorsmoUI;
 use crate::format::parse_time;
+use app::PorsmoUI;
+use clap::{Parser, Subcommand};
 use crossterm::event;
 use input::Command;
-use porsmo::pomodoro::PomoConfig;
-use terminal::{TerminalHandler, TerminalError};
-use clap::{Parser, Subcommand};
+use pomodorust::pomodoro::PomoConfig;
+use std::time::Duration;
+use terminal::{TerminalError, TerminalHandler};
 
 #[derive(Parser, Debug)]
 #[command(
-    name = "Porsmo",
+    name = "Pomodorust",
     author = "HellsNoah <hellsnoah@protonmail.com>",
     version = "0.2.2",
     about = "Timer and Stopwatch and Pomodoro",
@@ -115,11 +115,9 @@ pub enum InputEventError {
     NoEventsToPoll,
 }
 
-pub fn get_event(timeout: Duration)
--> Result<event::Event, InputEventError> {
-    if event::poll(timeout)
-        .map_err(|e| InputEventError::PollFailed(e))? {
-        Ok (event::read().map_err(|e| InputEventError::EventReadFailed(e))?)
+pub fn get_event(timeout: Duration) -> Result<event::Event, InputEventError> {
+    if event::poll(timeout).map_err(|e| InputEventError::PollFailed(e))? {
+        Ok(event::read().map_err(|e| InputEventError::EventReadFailed(e))?)
     } else {
         Err(InputEventError::NoEventsToPoll)
     }
@@ -127,30 +125,28 @@ pub fn get_event(timeout: Duration)
 
 fn get_ui_from_counter_mode(mode: Option<CounterMode>) -> PorsmoUI {
     match mode {
-        Some(CounterMode::Stopwatch { start_time }) =>
-            PorsmoUI::stopwatch(Duration::from_secs(start_time)),
-        Some(CounterMode::Timer { start_time }) =>
-            PorsmoUI::timer(Duration::from_secs(start_time)),
-        Some(CounterMode::Pomodoro {mode: Some(PomoMode::Short) | None}) =>
-            PorsmoUI::pomodoro(PomoConfig::short()),
-        Some(CounterMode::Pomodoro {mode: Some(PomoMode::Long)}) =>
-            PorsmoUI::pomodoro(PomoConfig::long()),
+        Some(CounterMode::Stopwatch { start_time }) => {
+            PorsmoUI::stopwatch(Duration::from_secs(start_time))
+        }
+        Some(CounterMode::Timer { start_time }) => PorsmoUI::timer(Duration::from_secs(start_time)),
         Some(CounterMode::Pomodoro {
-            mode: Some(
-                      PomoMode::Custom {
-                          work_time,
-                          break_time,
-                          long_break_time
-                      }
-                  )
-        }) => PorsmoUI::pomodoro(
-                PomoConfig::new(
-                    Duration::from_secs(work_time),
-                    Duration::from_secs(break_time),
-                    Duration::from_secs(long_break_time),
-                )
-            ),
+            mode: Some(PomoMode::Short) | None,
+        }) => PorsmoUI::pomodoro(PomoConfig::short()),
+        Some(CounterMode::Pomodoro {
+            mode: Some(PomoMode::Long),
+        }) => PorsmoUI::pomodoro(PomoConfig::long()),
+        Some(CounterMode::Pomodoro {
+            mode:
+                Some(PomoMode::Custom {
+                    work_time,
+                    break_time,
+                    long_break_time,
+                }),
+        }) => PorsmoUI::pomodoro(PomoConfig::new(
+            Duration::from_secs(work_time),
+            Duration::from_secs(break_time),
+            Duration::from_secs(long_break_time),
+        )),
         None => PorsmoUI::pomodoro(PomoConfig::short()),
     }
 }
-

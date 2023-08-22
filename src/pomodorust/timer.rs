@@ -1,12 +1,8 @@
 use crate::alert::Alert;
 use crate::terminal::{running_color, TerminalError};
-use crate::{
-    format::fmt_time,
-    input::Command,
-    terminal::TerminalHandler,
-};
-use porsmo::counter::Counter;
-use porsmo::counter::DoubleEndedDuration;
+use crate::{format::fmt_time, input::Command, terminal::TerminalHandler};
+use pomodorust::counter::Counter;
+use pomodorust::counter::DoubleEndedDuration;
 use std::time::Duration;
 
 pub struct TimerUI {
@@ -35,7 +31,11 @@ impl TimerUI {
     }
 
     pub fn quit(self) -> Self {
-        Self { counter: self.counter.stop(), quit: true, ..self }
+        Self {
+            counter: self.counter.stop(),
+            quit: true,
+            ..self
+        }
     }
 
     pub fn handle_command(mut self, command: Command) -> Self {
@@ -49,8 +49,7 @@ impl TimerUI {
         self
     }
 
-    pub fn show(&self, terminal: &mut TerminalHandler)
-    -> Result<(), TerminalError> {
+    pub fn show(&self, terminal: &mut TerminalHandler) -> Result<(), TerminalError> {
         match self.excess_time_left() {
             DoubleEndedDuration::Positive(elapsed) => {
                 self.alert.reset();
@@ -80,4 +79,3 @@ impl TimerUI {
         Ok(())
     }
 }
-
