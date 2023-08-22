@@ -29,8 +29,8 @@
             pname = "porsmo";
             version = "0.2.2";
 
-            cargo = pkgs.rust-bin.stable.latest.minimal;
-            rustc = pkgs.rust-bin.stable.latest.minimal;
+            cargo = pkgs.rust-bin.beta.latest.minimal;
+            rustc = pkgs.rust-bin.beta.latest.minimal;
             RUST_SRC_PATH =
               "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
 
@@ -64,6 +64,7 @@
             packages = with pkgs; [
               gcc
               rust-bin.beta.latest.default
+              rust-analyzer
               pkg-config
               alsa-lib
             ];

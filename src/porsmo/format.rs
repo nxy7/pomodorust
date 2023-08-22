@@ -1,4 +1,4 @@
-use std::{time::Duration, num::ParseIntError};
+use std::{num::ParseIntError, time::Duration};
 
 pub fn fmt_time(time: Duration) -> String {
     let secs = time.as_secs();
@@ -63,7 +63,7 @@ pub fn parse_time(time_str: &str) -> Result<u64, TimeParseError> {
 mod tests {
     use super::*;
     #[test]
-    fn test_parse_time() -> Result<()> {
+    fn test_parse_time() -> Result<(), Box<dyn std::error::Error>> {
         let ok_cases = vec![
             ("", 0),
             (":", 0),
